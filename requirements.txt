@@ -1,0 +1,7 @@
+transformers
+accelerate
+huggingface_hub
+open_clip_torch
+pip3 install -U "huggingface_hub[cli]"
+iopath 
+webdataset

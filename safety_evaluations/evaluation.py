@@ -16,9 +16,9 @@ from eval_datasets import (
     PopeDataset,
     SketchyDataset
     )
-from pope_metric import get_pope_results
-from sketchy_metric import get_sketchy_results
-from oodcv_vqa_metric import compute_oodcvqa_metrics
+from safety_evaluations.pope_metric import get_pope_results
+from safety_evaluations.sketchy_metric import get_sketchy_results
+from safety_evaluations.oodcv_vqa_metric import compute_oodcvqa_metrics
 from tqdm import tqdm
 
 sys.path.append(os.getcwd())
