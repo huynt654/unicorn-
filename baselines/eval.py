@@ -17,6 +17,7 @@ def parse_args():
     
     parser.add_argument("img_dir", type=str)
     parser.add_argument("prompt", type=str)
+    parser.add_argument("jsonfile", type=str)
     args = parser.parse_args()
 
     return args
@@ -34,11 +35,17 @@ def main(args):
             instruction=[args.prompt],
             images=[img_path],
         )
-        preds.append(pred)
+        prediction = {
+            'prediction': pred,
+            'image_path': img_path
+        }
+        preds.append(prediction)
 
 
     # eval 
-    write_to_json()
+    write_to_json(args.jsonfile, preds)
+    
+
 
 
 
