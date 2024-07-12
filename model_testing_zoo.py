@@ -11,8 +11,9 @@ configs = json.load(open("./config.json"))
 DATA_DIR = configs['DATA_DIR']
 CACHE_DIR = configs['CACHE_DIR']
 
-parser = argparse.ArgumentParser()
-parser.add_argument("--model_name", type=str,
+def parse_args():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--model_name", type=str,
                     default="LlamaAdapterV2", 
                     choices=["LlamaAdapterV2", "MiniGPT4", "MiniGPT4v2",
                     "LLaVA", "mPLUGOwl", "mPLUGOwl2", "PandaGPT", "InstructBLIP2", "Flamingo", 
@@ -20,7 +21,9 @@ parser.add_argument("--model_name", type=str,
                     "MiniGPT4_llama2", "Qwen-VL-Chat", "InstructBLIP2-FlanT5-xl", 
                     "InstructBLIP2-FlanT5-xxl",  "InstructBLIP2-13B", "MiniGPT4_13B", "CogVLM", 
                     "Fuyu", "InternLM"])
-args = parser.parse_args()
+    args = parser.parse_args()
+
+    return args
 TESTING_MODEL=args.model_name
 
 
