@@ -1,5 +1,9 @@
-from utils import load_model, write_to_json
+from utils import load_model
 import argparse
+
+# configs = json.load(open("./config.json"))
+# DATA_DIR = configs['DATA_DIR']
+
 
 
 def parse_args():
@@ -15,33 +19,33 @@ def parse_args():
                         "InternLM",
                         "Qwen"])
     
-    parser.add_argument("img_dir", type=str)
+    parser.add_argument("img_path", type=str)
     parser.add_argument("prompt", type=str)
     args = parser.parse_args()
 
     return args
 
-
 def main(args):
+    
     # init model
     model = load_model(args.model_name)
 
-    preds = []
+    # prediction
+    pred = model.generate(
+        instruction=[args.prompt],
+        images=[args.img_path],
+    )
 
-    for img_path in args.img_dir:
-        # prediction
-        pred = model.generate(
-            instruction=[args.prompt],
-            images=[img_path],
-        )
-        preds.append(pred)
-
-
-    # eval 
-    write_to_json()
-
+    print(f'Instruction:\t{args.prompt}')
+    print(f'Answer:\t{pred}')
 
 
 if __name__ == "__main__":
     args = parse_args()
     main(args)
+
+
+model = load_model("InternLM")
+
+
+
