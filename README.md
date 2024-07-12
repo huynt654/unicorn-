@@ -7,6 +7,14 @@ $ conda activate unicorn
 $ pip3 install -r requirements.txt
 ```
 
+
+## Design prompt 
+
+```bash
+$ cd baselines 
+$ Please customize the design_prompt() function in utils.py
+```
+
 ## Inference 
 
 ```bash
