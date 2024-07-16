@@ -4,6 +4,13 @@ import json
 import argparse
 
 
+def process_exception(filename):
+    flag = 0
+    if filename == '.DS_Store':
+        flag = 1
+        return flag
+    else: return flag
+
 def load_model(TESTING_MODEL):
 
     if TESTING_MODEL == "mPLUG_Owl2": ## mmqa
@@ -59,12 +66,10 @@ def load_json_file(file_path):
         return None
     except Exception as e:
         print(f"An error occurred while loading the file: {str(e)}")
-        return None
-    
+        return None    
 
 def design_prompt():
     return
-
 
 def write_to_json(file_path, prediction):
 
@@ -83,6 +88,23 @@ def write_to_json(file_path, prediction):
     except Exception as e:
         print(f"Write prediction into {file_path} unsuccessfully")
 
+def load_img_paths(base_dir):
+    img_paths = []   # ../data
+    sub_dirs = [os.path.join(base_dir, sub_dir) for sub_dir in os.listdir(base_dir)] # phase-1, phase-2
 
+    for dir in sub_dirs:
+        if process_exception(dir):
+            continue
+        for img_path in os.listdir(dir):
+            if process_exception(img_path):
+                continue
+            img_paths.append(os.path.join(dir, img_path))
+
+    return img_paths
+
+
+
+
+print(len(os.listdir('/mnt/AI_Data/UNICORN/test/unicorn-/data/oodcv_images/phase-1/images')))
 
 

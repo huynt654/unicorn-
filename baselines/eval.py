@@ -1,4 +1,4 @@
-from utils import load_model, write_to_json
+from utils import load_model, write_to_json, load_img_paths, design_prompt
 import argparse
 
 
@@ -15,21 +15,27 @@ def parse_args():
                         "InternLM",
                         "Qwen"])
     
-    parser.add_argument("img_dir", type=str)
-    parser.add_argument("prompt", type=str)
+    parser.add_argument("img_dir", type=str, default='../data/oodcv_images')
+    parser.add_argument("questions", type=str, default=)
     parser.add_argument("jsonfile", type=str)
+    
     args = parser.parse_args()
-
     return args
 
 
 def main(args):
+
     # init model
     model = load_model(args.model_name)
 
+    img_paths = load_img_paths(args.img_dir)
+
+    design_prompt
+
     preds = []
 
-    for img_path in args.img_dir:
+    for img_path in img_paths:
+
         # prediction
         pred = model.generate(
             instruction=[args.prompt],
@@ -45,9 +51,6 @@ def main(args):
     # eval 
     write_to_json(args.jsonfile, preds)
     
-
-
-
 
 if __name__ == "__main__":
     args = parse_args()

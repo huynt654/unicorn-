@@ -4,9 +4,9 @@ import argparse
 # configs = json.load(open("./config.json"))
 # DATA_DIR = configs['DATA_DIR']
 
-
-
 def parse_args():
+
+    # pwd == baselines
     parser = argparse.ArgumentParser()
     parser.add_argument("--model_name", type=str,
                     default="Qwen", 
@@ -19,10 +19,10 @@ def parse_args():
                         "InternLM",
                         "Qwen"])
     
-    parser.add_argument("img_path", type=str)
-    parser.add_argument("prompt", type=str)
-    args = parser.parse_args()
+    parser.add_argument("--img_path", type=str, default='../data/oodcv_images/phase-1/images/2008_000033.jpg')
+    parser.add_argument("--prompt", type=str, default="Is there a aeroplane in the image?")
 
+    args = parser.parse_args()
     return args
 
 def main(args):
@@ -39,13 +39,11 @@ def main(args):
     print(f'Instruction:\t{args.prompt}')
     print(f'Answer:\t{pred}')
 
-
 if __name__ == "__main__":
     args = parse_args()
     main(args)
 
 
-model = load_model("InternLM")
 
 
 
