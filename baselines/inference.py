@@ -18,9 +18,11 @@ def parse_args():
                         "InstructBLIP2-13B",
                         "InternLM",
                         "Qwen"])
-    
-    parser.add_argument("--img_path", type=str, default='../data/oodcv_images/phase-1/images/2008_000033.jpg')
-    parser.add_argument("--prompt", type=str, default="Is there a aeroplane in the image?")
+    # "How many unicorns would there be in the image after four more unicorns have been added in the image?"
+    # "How many unicorns would there be in the image after four more unicorns have been added in the image? \n The main objects mentioned in the question are: Unicorns. \n Instruction:  Describe the surrounding objects and characteristics of the main object (if any). \n Answer the questions in a thorough analytical way.")
+
+    parser.add_argument("--img_path", type=str, default='../data/oodcv_images/phase-2/images/223.jpg')
+    parser.add_argument("--prompt", type=str, default="How many unicorns would there be in the image after four more unicorns have been added in the image? Let's think step by step")
 
     args = parser.parse_args()
     return args
@@ -42,7 +44,6 @@ def main(args):
 if __name__ == "__main__":
     args = parse_args()
     main(args)
-
 
 
 

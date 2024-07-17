@@ -51,13 +51,12 @@ def parse_args():
     )
 
     
-    parser.add_argument("--batch_size", type=int, default=1)
+    parser.add_argument("--batch_size", type=int, default=2)
     parser.add_argument("--device", type=int, default=0)
     parser.add_argument("--custom_prompt", type=bool, default=False) 
 
     args = parser.parse_args()
     return args
-
 
 def main(args):
 
@@ -141,7 +140,6 @@ def main(args):
                 "yes_ratio": scores[4],
             }]
         print(final_results)
-
 
     # save result file
     json_file = os.path.join(args.save_jsondir, f'{args.dataset}_{args.model_name}.json')

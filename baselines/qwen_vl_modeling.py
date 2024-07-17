@@ -12,8 +12,9 @@ from base import VLLMBaseModel
 class VLLMQwenVL(VLLMBaseModel):
     def __init__(self, model_path, device="cuda:0"):
         super().__init__(model_path, device)
-        self.tokenizer = AutoTokenizer.from_pretrained(model_path, trust_remote_code=True)
-        self.model = AutoModelForCausalLM.from_pretrained(model_path, trust_remote_code=True).to(device)
+        # , fp32=True
+        self.tokenizer = AutoTokenizer.from_pretrained(model_path, trust_remote_code=True, fp16=True)
+        self.model = AutoModelForCausalLM.from_pretrained(model_path, trust_remote_code=True, fp16=True).to(device)
         self.model.eval()
 
     def generate_v0(self, instruction, images):
