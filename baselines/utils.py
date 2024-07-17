@@ -105,6 +105,3 @@ def load_img_paths(base_dir):
 
 
 
-print(len(os.listdir('/mnt/AI_Data/UNICORN/test/unicorn-/data/oodcv_images/phase-1/images')))
-
-
