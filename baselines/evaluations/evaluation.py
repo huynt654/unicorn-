@@ -41,10 +41,9 @@ def test_ood_tasks(
     image_dir_path,
     questions_json_path_test,
     seed=42,
-    num_shots=0,
-    additional_shots=0,
     model_name=None,
     task_name=None,
+    challenge=0
 ):
     setup_seed(seed)
     eval_dataset = OODCVDataset(
@@ -52,13 +51,6 @@ def test_ood_tasks(
         question_path=questions_json_path_test,
     )
 
-    ## effective_num_shots is for text instruction only
-    num_shots=0
-    if additional_shots == 0:
-        effective_num_shots = num_shots
-    else:
-        effective_num_shots = num_shots if num_shots > 0 else additional_shots
-    
     def get_prompt_choose(sample, train=True):
         question = sample['question']
         if train:
@@ -73,21 +65,21 @@ def test_ood_tasks(
         else:
             return f"{question}"
 
+
     predictions = defaultdict()
     failed_case = 0
+
     for batch in more_itertools.chunked(tqdm(eval_dataset), batch_size):
-        batch_images = []
-        batch_text = []
-        batch_answers = []
-        situations = []
+
+        batch_images, batch_text, batch_answers, situations = [], [], [], [] # image paths, prompt_text {prompt + question}, answer_text, situation 
+        
         for i in range(len(batch)):
             batch_images.append(batch[i]["image"])
-
-            batch_text.append(get_prompt_generate(batch[i], train=False, ))
+            batch_text.append(get_prompt_generate(batch[i], train=False))
             batch_answers.append(batch[i]["text_answer"])
             situations.append(batch[i]["situation"])
-        # __import__("ipdb").set_trace()
 
+        # predictions
         outputs = eval_model.generate(
             images=batch_images,
             instruction=batch_text[0],
@@ -99,14 +91,26 @@ def test_ood_tasks(
                 "answer": batch_answers[0],
                 "situation": situations[0],
             }
+
+
+    if not os.path.exists("../test_results/generated/"):
+        os.makedirs("../test_results/generated/", exist_ok=True)
+
+    # save predictions
+    if True:
+            if challenge:
+                save_path = f"../test_results/generated/{task_name}-counterfact_{model_name}_output.json"    
+            else: 
+                save_path = f"../test_results/generated/{task_name}_{model_name}_output.json"
+            with open(save_path, "w") as f:
+                    json.dump(predictions, f, indent=4)
     
-    os.makedirs("../test_results/generated/", exist_ok=True)
-    save_path = f"../test_results/generated/{task_name}_{model_name}_output.json"
-    with open(save_path, "w") as f:
-        json.dump(predictions, f, indent=4)
-    counter_factual = True if task_name == "oodcv_vqa_cf" else False
+    counter_factual = True if challenge else False
     acc, yes_no_acc, digits_acc, all_digits_acc, all_category_results = compute_oodcvqa_metrics(predictions, counter_factual)
+    
     print(f"Failed Case Number: {failed_case}..")
+    
+    
     return acc, yes_no_acc, digits_acc, all_digits_acc, all_category_results
 
 def evaluate_sketchyvqa(
@@ -119,6 +123,7 @@ def evaluate_sketchyvqa(
     additional_shots=0,
     model_name=None,
     task_name=None,
+    challenge=0
 ):
     """
     Evaluate a model on POPE benchmark.
@@ -135,27 +140,34 @@ def evaluate_sketchyvqa(
         tqdm(full_dataset, desc="Running inference"), batch_size
     ):
 
-        batch_images = []
-        batch_text = []
+        batch_images, batch_text = [], [] # image, question_text
 
         ## get example batch
         for i in range(len(batch)):
             batch_images.append([batch[i]["image"]])
             batch_text.append(batch[i]['question'])
 
+
+        # prediction
         outputs = eval_model.generate(
             images=batch_images[0],
             instruction=batch_text[0],
         )
 
-
         predictions.append(
                 {"answer": outputs, "label": batch[0]["answer"], "image_path": batch[0]["image"]}
         )
+
     # save the predictions to a temporary file
     test_results_dir = "sketchyvqa_generated"
-    os.makedirs(f"../test_results/{test_results_dir}/", exist_ok=True)
-    out_file_path = f"../test_results/{test_results_dir}/{task_name}_results_{model_name}.json"
+    if not os.path.exists(f"../test_results/{test_results_dir}/"):
+        os.makedirs(f"../test_results/{test_results_dir}/", exist_ok=True)
+       
+    if challenge:
+        out_file_path = f"../test_results/{test_results_dir}/{task_name}-counterfact_results_{model_name}.json"
+    else:
+        out_file_path = f"../test_results/{test_results_dir}/{task_name}_results_{model_name}.json"
+    
     with open(out_file_path, "w") as f:
         f.write(json.dumps(predictions, indent=4))
 

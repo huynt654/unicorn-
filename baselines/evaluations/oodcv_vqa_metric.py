@@ -4,6 +4,22 @@ import numpy as np
 from collections import OrderedDict
 
 
+def compute_oodcvqa_metrics(results_json, counter_factual=False):
+    """Compute the VQA accuracy metric.
+    """
+    # create vqaEval object by taking vqa and vqaRes
+    # n is precision of accuracy (number of places after decimal), default is 2
+    vqaEval = OODCVVQAEval(results_json, n=2)
+
+    # evaluate results
+    """
+    If you have a list of question ids on which you would like to evaluate your results, pass it as a list to below function
+    By default it uses all the question ids in annotation file
+    """
+    vqaEval.evaluate(counter_factual)
+
+    return vqaEval.accuracy, vqaEval.yes_no_accuracy, vqaEval.digits_accuracy, vqaEval.all_digits_results, vqaEval.all_category_results
+
 class OODCVVQAEval:
     def __init__(self, vqa, n=2):
         self.n = n
@@ -164,7 +180,6 @@ class OODCVVQAEval:
             "twentythree": "23",
             "twentyfour": "24"
         }
-
         self.manualMap2 = OrderedDict({
             "Yes": ['yes', 'Yes', 'yeah', 'Yeah'],
             "No": ['no', 'No', 'nope', 'Nope'],
@@ -197,7 +212,6 @@ class OODCVVQAEval:
         self.categories = ["iid", "occlusion", "context", "pose", "shape", "texture", "weather"]
         self.articles = ["a", "an", "the"]
         self.max_ans_num = 5
-
         self.periodStrip = re.compile("(?!<=\d)(\.)(?!\d)")
         self.commaStrip = re.compile("(\d)(\,)(\d)")
         self.punct = [
@@ -256,12 +270,15 @@ class OODCVVQAEval:
                 category_acc[category]['number'].append(flag)
                 category_acc[category]['detailed_number'][int(answer)].append(flag)
             final_eval_results.append(flag)
+        
         print("Done computing accuracy")
+        
         self.accuracy = np.mean(final_eval_results)
         self.yes_no_accuracy = np.mean(yes_no_results)
         self.digits_accuracy = np.mean(digits_results)
         self.all_digits_results = {key: np.mean(all_digits_results[key]) for key in range(self.max_ans_num + 1)}
         self.all_category_results = {}
+        
         for key in self.categories:
             detailed_number_acc = {key2: np.mean(category_acc[key]['detailed_number'][key2]) for key2 in range(self.max_ans_num + 1)}
             self.all_category_results[key] = {
@@ -269,6 +286,8 @@ class OODCVVQAEval:
                 "number": np.mean(category_acc[key]['number']),
                 "detailed_number": detailed_number_acc
             }
+
+
     def find_right_prediction(self, prediction, yesno_answer=True):
         mid_terms = ['if', 'after', 'once', 'now that']
         start_term = ["After", "If", "Once", "Now that"]
@@ -364,25 +383,6 @@ class OODCVVQAEval:
         outText = " ".join(outText)
         return outText
 
-
-
-def compute_oodcvqa_metrics(results_json, counter_factual=False):
-    """Compute the VQA accuracy metric.
-    """
-    # create vqaEval object by taking vqa and vqaRes
-    # n is precision of accuracy (number of places after decimal), default is 2
-    vqaEval = OODCVVQAEval(results_json, n=2)
-
-    # evaluate results
-    """
-    If you have a list of question ids on which you would like to evaluate your results, pass it as a list to below function
-    By default it uses all the question ids in annotation file
-    """
-    vqaEval.evaluate(counter_factual)
-
-    return vqaEval.accuracy, vqaEval.yes_no_accuracy, vqaEval.digits_accuracy, vqaEval.all_digits_results, vqaEval.all_category_results
-
-
 def postprocess_vqa_generation(predictions):
     # return predictions
     predictions = re.split("Question|Answer|###|</s>", predictions, 1)[0]
@@ -392,4 +392,5 @@ def postprocess_vqa_generation(predictions):
         predictions = "No"
     else:
         predictions = predictions
+    
     return predictions

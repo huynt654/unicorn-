@@ -1,4 +1,3 @@
-import json
 
 
 def get_sketchy_results(ans_dict):
@@ -57,9 +56,11 @@ def get_sketchy_results(ans_dict):
     recall = float(TP) / float(TP + FN)
     f1 = 2*precision*recall / (precision + recall)
     acc = (TP + TN) / (TP + TN + FP + FN)
+   
     print('Accuracy: {}'.format(acc))
     print('Precision: {}'.format(precision))
     print('Recall: {}'.format(recall))
     print('F1 score: {}'.format(f1))
     print('Yes ratio: {}'.format(yes_ratio))
+    
     return (TP, FP, TN, FN), (acc, precision, recall, f1, yes_ratio)

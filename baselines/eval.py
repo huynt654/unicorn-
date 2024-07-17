@@ -52,7 +52,6 @@ def parse_args():
 
     
     parser.add_argument("--batch_size", type=int, default=2)
-    parser.add_argument("--device", type=int, default=0)
     parser.add_argument("--custom_prompt", type=bool, default=False) 
 
     args = parser.parse_args()
@@ -62,7 +61,7 @@ def main(args):
 
     # init model
     model = load_model(args.model_name).to(args.deivce)
-
+    challenge = 0
     # determine dataset
     if args.dataset == 'ood-vqa':
         question_jsonfile = '../data/label/oodcv-vqa/oodcv-vqa.json'
@@ -72,6 +71,7 @@ def main(args):
         question_jsonfile = '../data/label/oodcv-vqa/oodcv-counterfactual.json'
         eval_task = 'vqa'
         img_base_dir = '../data/oodcv_images'
+        challenge += 1
     elif args.dataset == 'sketch':
         question_jsonfile = '../data/label/sketchy-vqa/sketchy-vqa.json'
         eval_task = 'sktechy'
@@ -80,6 +80,7 @@ def main(args):
         question_jsonfile = '../data/label/sketchy-vqa/sketchy-challenging.json'
         eval_task = 'sktechy'
         img_base_dir = '../data/sktechy_images'
+        challenge += 1
 
 
     final_results = {}
@@ -98,6 +99,7 @@ def main(args):
                 seed=seed,
                 model_name=args.model_name,
                 task_name=eval_task,
+                challenge=challenge
             )
 
 
@@ -115,8 +117,8 @@ def main(args):
             "YesNoAcc": yes_no_acc_list,
             "AllDigits": all_digits_acc_list[0],
             "AllCategories": all_category_results,
-        }
-    elif args.eval_sketch or args.eval_sketch_challenging:
+        }    
+    elif eval_task == 'sketchy':
         
         scores = evaluate_sketchyvqa(
             model,
@@ -130,6 +132,7 @@ def main(args):
             seed=args.trial_seeds[0],
             model_name=args.model_name,
             task_name=eval_task,
+            challenge=challenge
         )
 
         final_results[args.model_name] = [{
@@ -141,6 +144,7 @@ def main(args):
             }]
         print(final_results)
 
+
     # save result file
     json_file = os.path.join(args.save_jsondir, f'{args.dataset}_{args.model_name}.json')
     write_to_json(json_file, final_results)
@@ -149,3 +153,4 @@ def main(args):
 if __name__ == "__main__":
     args = parse_args()
     main(args)
+
