@@ -25,7 +25,7 @@ def parse_args():
                         "Qwen"])
     parser.add_argument("--dataset", type=str, 
                         default='ood-vqa',
-                        choice=[
+                        choices=[
                             'ood-vqa',
                             'ood-vqa-challenge',
                             'sketch',
@@ -50,7 +50,7 @@ def parse_args():
         help="Seeds to use for each trial for picking demonstrations and eval sets",
     )
 
-    
+    parser.add_argument("--device", type=str, default='cuda')
     parser.add_argument("--batch_size", type=int, default=2)
     parser.add_argument("--custom_prompt", type=bool, default=False) 
 
@@ -60,7 +60,7 @@ def parse_args():
 def main(args):
 
     # init model
-    model = load_model(args.model_name).to(args.deivce)
+    model = load_model(args.model_name).to(args.device)
     challenge = 0
     # determine dataset
     if args.dataset == 'ood-vqa':
@@ -84,7 +84,8 @@ def main(args):
 
 
     final_results = {}
-    # muốn viết eval cho ood-vqa, sketchy
+
+
     if eval_task == 'vqa':
         acc_list, yes_no_acc_list, digits_acc_list, all_digits_acc_list = [], [], [], []
 
@@ -142,7 +143,9 @@ def main(args):
                 "f1": scores[3],
                 "yes_ratio": scores[4],
             }]
-        print(final_results)
+
+        # print results
+        print("Acc.: {:.2f}; Precision: {:.2f}; Recall: {:.2f}; F1: {:.2f}; Yes_Ratio: {:.2f}".format(scores[0], scores[1], scores[2], scores[3], scores[4]))
 
 
     # save result file

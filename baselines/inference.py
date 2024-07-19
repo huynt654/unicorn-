@@ -41,9 +41,24 @@ def main(args):
     print(f'Instruction:\t{args.prompt}')
     print(f'Answer:\t{pred}')
 
+    '''
+    pipeline:
+    Step1: Main Objs = LLMs(Q) 
+    Step2: Context (Caption in detail) = VLMs(Describe Main Objs)
+    Step3: Prompt = {
+        Context: {Context} \n
+        Question: {Question} \n
+        So the Answer is: .....
+    }
+
+        --> Prediction = VLMs(Prompt)
+    '''
+
 if __name__ == "__main__":
     args = parse_args()
     main(args)
+
+
 
 
 
