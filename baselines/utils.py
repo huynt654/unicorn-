@@ -77,5 +77,83 @@ def write_to_json(file_path, prediction):
     except Exception as e:
         print(f"Write prediction into {file_path} unsuccessfully")
 
-def design_prompt():
-    return
+def design_prompt(prompt_type, question=None, description=None, context=None):
+    
+    '''
+
+    question: str
+    prompt_type: str
+        - IP (Instruction Prompting)
+        - IP-FS (Instruction Prompting - Few Shot)
+        - CG (Context Generation)
+        - QA: (Question Answering)
+        - QA-FS: (Question Answering - Few Shot)
+    description: str 
+        A string text is returned by LLMs
+    context: str
+        A string text is returned by VLMs (step 1)
+    
+    return: str
+        prompt 
+    '''
+    
+    if prompt_type == 'IP':
+        
+        prompt = f'''
+        Question: {question}
+        Task demonstration: What information needs to be described to help answer the question above? (describe in one sentence)
+        Answer:
+        '''
+  
+    elif prompt_type == 'IP-FS':
+        
+        prompt = f'''
+        Example 1: 
+        Question: 'How many people will dine at this table?'
+        Task demonstration: What information needs to be described to help answer the question above? (describe in one sentence)
+        Answer: A description of the table's size, shape, and the number of place settings or chairs arranged around it.
+
+        Example 2:
+        Question: 'What could block the washer's door?'
+        Task demonstration: What information needs to be described to help answer the question above? (describe in one sentence)
+        Answer: A description of the washer's surroundings, any visible obstructions near the door, and the current state of the washer's door (open or closed).
+
+        Example 3:
+        Question: "What is the hairstyle of the blond called?"
+        Task demonstration: What information needs to be described to help answer the question above? (describe in one sentence)
+        Answer: A description of the specific features or characteristics that distinguish the blond's hairstyle.
+
+        Question: {question}
+        Task demonstration: What information needs to be described to help answer the question above? (describe in one sentence)
+        Answer:
+        '''
+    
+    elif prompt_type == 'CG':
+        
+        prompt = f'''
+        Let's {description}
+        '''
+    
+    elif prompt_type == 'QA':
+        
+        prompt = f'''
+        Context: {context}.
+        Question: {question}.
+        So the answer is: 
+        '''
+    
+    elif prompt_type == 'QA-FS':
+        
+        prompt = f'''
+        Example 1:
+
+        Example 2:
+
+        Context: {context}.
+        Question: {question}.
+        So the answer is: 
+        '''
+
+    return prompt 
+
+
