@@ -47,7 +47,7 @@ class SketchyDataset(Dataset):
 
     def __init__(
             self,
-            image_base_dir_path="/data/haoqin_tu/datasets",
+            image_base_dir_path="/data/datasets",
             question_path="skechydata/template_sketchy_v1.json",
     ):
         self.question_annot = json.load(open(question_path))

@@ -1,3 +1,4 @@
+
 import json
 
 import os
@@ -18,7 +19,7 @@ from evaluations.eval_datasets import (
 from evaluations.sketchy_metric import get_sketchy_results
 from evaluations.oodcv_vqa_metric import compute_oodcvqa_metrics
 from tqdm import tqdm
-from utils import pipeline
+
 
 def setup_seed(seed=3407):
     os.environ["PYTHONHASHSEED"]=str(seed)
@@ -36,7 +37,6 @@ def setup_seed(seed=3407):
 
 def test_ood_tasks(
     eval_model,
-    llm_name,
     batch_size,
     image_dir_path,
     questions_json_path_test,
@@ -70,35 +70,24 @@ def test_ood_tasks(
     failed_case = 0
 
     for batch in more_itertools.chunked(tqdm(eval_dataset), batch_size):
-        
-        # according to batch
+
         batch_images, batch_text, batch_answers, situations = [], [], [], [] # image paths, prompt_text {prompt + question}, answer_text, situation 
         
-        # iterative each element in batch
         for i in range(len(batch)):
-            # add each element of batch to list 
-            batch_images.append(batch[i]["image"]) # image
-            batch_text.append(get_prompt_generate(batch[i], train=False)) # question 
-            batch_answers.append(batch[i]["text_answer"]) # answer
+            batch_images.append(batch[i]["image"])
+            batch_text.append(get_prompt_generate(batch[i], train=False))
+            batch_answers.append(batch[i]["text_answer"])
             situations.append(batch[i]["situation"])
-        
-        # prediction in 1 sample 
-        output = pipeline(eval_model, 
-                          llm_name, 
-                          batch_images, 
-                          batch_text[0],
-                          task_name, 
-                          challenge
-            )
-        
-        # outputs = eval_model.generate(
-        #     images=batch_images,
-        #     instruction=batch_text[0],
-        # )
+
+        # predictions
+        outputs = eval_model.generate(
+            images=batch_images,
+            instruction=batch_text[0],
+        )
 
         for i, sample in enumerate(batch):
             predictions[sample["image"]] = {
-                "prediction": output,
+                "prediction": outputs,
                 "answer": batch_answers[0],
                 "situation": situations[0],
             }
@@ -126,11 +115,12 @@ def test_ood_tasks(
 
 def evaluate_sketchyvqa(
     eval_model,
-    llm_name,
     batch_size,
     image_dir_path,
     questions_json_path,
     seed=42,
+    num_shots=0,
+    additional_shots=0,
     model_name=None,
     task_name=None,
     challenge=0
@@ -158,18 +148,11 @@ def evaluate_sketchyvqa(
             batch_text.append(batch[i]['question'])
 
 
-        # prediction in 1 sample 
-        outputs = pipeline(eval_model,
-                            llm_name,
-                            batch_images[0], 
-                            batch_text[0],
-                            task_name,
-                            challenge
-            )
-        # outputs = eval_model.generate(
-        #     images=batch_images[0],
-        #     instruction=batch_text[0],
-        # )
+        # prediction
+        outputs = eval_model.generate(
+            images=batch_images[0],
+            instruction=batch_text[0],
+        )
 
         predictions.append(
                 {"answer": outputs, "label": batch[0]["answer"], "image_path": batch[0]["image"]}
@@ -191,6 +174,3 @@ def evaluate_sketchyvqa(
     _, metrics = get_sketchy_results(predictions)
 
     return metrics
-
-
-

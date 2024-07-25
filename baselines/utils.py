@@ -2,6 +2,9 @@ import os
 import sys
 import json
 import argparse
+from llms.utils import respond 
+
+
 
 def load_model(TESTING_MODEL):
 
@@ -25,7 +28,7 @@ def load_model(TESTING_MODEL):
         from instruct_blip_modeling import VLLMInstructBLIP2
         model = VLLMInstructBLIP2("Salesforce/instructblip-flan-t5-xxl")
 
-    elif TESTING_MODEL == "Qwen": ## mmqa
+    elif TESTING_MODEL == "QwenChat": ## mmqa
         from qwen_vl_modeling import VLLMQwenVL
         model = VLLMQwenVL("Qwen/Qwen-VL-Chat")
 
@@ -99,61 +102,115 @@ def design_prompt(prompt_type, question=None, description=None, context=None):
     
     if prompt_type == 'IP':
         
-        prompt = f'''
-        Question: {question}
-        Task demonstration: What information needs to be described to help answer the question above? (describe in one sentence)
-        Answer:
-        '''
+        prompt = f'''Question: {question}
+Task demonstration: What information needs to be described to help answer the question above? (describe in one sentence)
+Answer:'''
   
     elif prompt_type == 'IP-FS':
         
-        prompt = f'''
-        Example 1: 
-        Question: 'How many people will dine at this table?'
-        Task demonstration: What information needs to be described to help answer the question above? (describe in one sentence)
-        Answer: A description of the table's size, shape, and the number of place settings or chairs arranged around it.
+        prompt = f'''Example 1: 
+Question: 'How many people will dine at this table?'
+Task demonstration: What information needs to be described to help answer the question above? (describe in one sentence)
+Answer: A description of the table's size, shape, and the number of place settings or chairs arranged around it.
 
-        Example 2:
-        Question: 'What could block the washer's door?'
-        Task demonstration: What information needs to be described to help answer the question above? (describe in one sentence)
-        Answer: A description of the washer's surroundings, any visible obstructions near the door, and the current state of the washer's door (open or closed).
+Example 2:
+Question: 'What could block the washer's door?'
+Task demonstration: What information needs to be described to help answer the question above? (describe in one sentence)
+Answer: A description of the washer's surroundings, any visible obstructions near the door, and the current state of the washer's door (open or closed).
 
-        Example 3:
-        Question: "What is the hairstyle of the blond called?"
-        Task demonstration: What information needs to be described to help answer the question above? (describe in one sentence)
-        Answer: A description of the specific features or characteristics that distinguish the blond's hairstyle.
+Example 3:
+Question: "What is the hairstyle of the blond called?"
+Task demonstration: What information needs to be described to help answer the question above? (describe in one sentence)
+Answer: A description of the specific features or characteristics that distinguish the blond's hairstyle.
 
-        Question: {question}
-        Task demonstration: What information needs to be described to help answer the question above? (describe in one sentence)
-        Answer:
-        '''
+Question: {question}
+Task demonstration: What information needs to be described to help answer the question above? (describe in one sentence)
+Answer:'''
     
     elif prompt_type == 'CG':
         
-        prompt = f'''
-        Let's {description}
+        prompt = f'''{description}
         '''
     
     elif prompt_type == 'QA':
         
-        prompt = f'''
-        Context: {context}.
-        Question: {question}.
-        So the answer is: 
-        '''
+        prompt = f'''Context: {context}.
+Question: {question}.
+So the answer is: '''
     
     elif prompt_type == 'QA-FS':
         
-        prompt = f'''
-        Example 1:
+        prompt = f'''Example 1:
 
-        Example 2:
+Example 2:
 
-        Context: {context}.
-        Question: {question}.
-        So the answer is: 
-        '''
+Context: {context}.
+Question: {question}.
+Let's choose 1 of the options above. So the answer is: '''
 
     return prompt 
 
+def load_step0(task_name, challenge):   
+        if task_name == 'vqa':
+            if challenge:
+                # vqa-challenge
+                jsonfile = '' 
+            else: 
+                # vqa
+                jsonfile = ''
+        else:
+            if challenge:
+                # sketchy-challenge
+                jsonfile = ''
+            else:
+                # sketchy
+                jsonfile = ''
 
+        return jsonfile
+
+def pipeline(vlm,
+             llm_name,
+             img_path, # list 
+             question, # str 
+             task_name, # str
+             challenge, # int 
+             step0=False
+    ):
+
+    '''
+
+    Input:
+    - vlm: model
+    - llm_name: str
+    - img_path: list[str]
+    - question: str
+    - step0: bool --> Whether to use step0 or not 
+    Output:
+    - pred: str (answer for VQA)
+
+    '''
+    
+    
+    if step0:
+        description = ''
+    else:
+        jsonpath = load_step0(task_name, challenge)
+        jsonfile = load_json_file(jsonpath)
+        description = ''
+
+
+
+
+    preds = vlm.generate()
+    # outputs = eval_model.generate(
+    #     images=batch_images,
+    #     instruction=batch_text[0],
+    # )
+    return preds
+
+
+def run_step0():
+    
+    # format: description: question
+    
+    return

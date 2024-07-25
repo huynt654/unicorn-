@@ -1,7 +1,7 @@
 from utils import load_model, design_prompt
 import argparse
-from llms.utils import response
-
+from llms.utils import respond
+import torch
 '''
     pipeline:
     Step0: Description = LLMs(Q) 
@@ -37,11 +37,9 @@ def parse_args():
                             'llama3:8b',
                             'qwen2:7b'
                         ])
-    # "How many unicorns would there be in the image after four more unicorns have been added in the image?"
-    # "How many unicorns would there be in the image after four more unicorns have been added in the image? \n The main objects mentioned in the question are: Unicorns. \n Instruction:  Describe the surrounding objects and characteristics of the main object (if any). \n Answer the questions in a thorough analytical way.")
-
-    parser.add_argument("--img_path", type=str, default='/mnt/AI_Data/UNICORN/test/demo.jpg')
-    parser.add_argument("--question", type=str, default="How many cats in this image?")
+    
+    parser.add_argument("--img_path", type=str, default='/mnt/AI_Data/UNICORN/test/demo3.png')
+    parser.add_argument("--question", type=str, default="What does the man who sits have trouble doing? \n Multiple Choice Answers: \n (a) Riding (b) Breathing (c) Walking (d) Magic")
 
     args = parser.parse_args()
     return args
@@ -51,54 +49,35 @@ def main(args):
     # init vlm model
     vlm_model = load_model(args.model_name)
 
-    # Step 0: Generate description 
+    # Step 0: Generate description llm
     IP_FS_prompt = design_prompt('IP-FS', args.question)
-    print(IP_FS_prompt)
-    description_instruction = response(args.llm_name,  IP_FS_prompt)
+    description_instruction = respond(args.llm_name,  IP_FS_prompt)
     print(description_instruction)
-    # Step 1: Generate Context
-    CG_prompt = design_prompt(description_instruction)
-    print(CG_prompt)
-    context = vlm_model.generate(
-        instruction=[CG_prompt],
-        images=[args.img_path],
-    )
 
-    # Step 2: Generate Answer
-    QA_prompt = design_prompt('QA', context=context, question=args.question)
-    pred = vlm_model.generate(
-        instruction=[QA_prompt],
-        images=[args.img_path],
-    )
+    # description = "A description of the man's physical condition or any visible signs of difficulty performing the listed activities."
+    # # Step 1: Generate Context 
+    # CG_prompt = design_prompt('CG', description=description) #_instruction)
+    # context = vlm_model.generate(
+    #     instruction=[CG_prompt],
+    #     images=[args.img_path],
+    # )
+    # print(context)
 
-    print(f'Instruction:\t{QA_prompt}')
-    print(f'Answer:\t{pred}')
+
+
+    # context = 'The man is described as elderly and using a wheelchair, which suggests that he may have some physical limitations or difficulty walking. However, the image does not provide enough information to determine the severity of his physical condition or any visible signs of difficulty performing the listed activities.'
+    # # Step 2: Generate Answer
+    # QA_prompt = design_prompt('QA', context=context, question=args.question)
+    # pred = vlm_model.generate(
+    #     instruction=[QA_prompt],
+    #     images=[args.img_path],
+    # )
+    # print(f'Instruction:\t{QA_prompt}')
+    # print(f'Answer:\t{pred}')
+
 
 if __name__ == "__main__":
     args = parse_args()
     main(args)
 
-
-
-
-
-
-''' a = {
-• Màu sắc
-• Kích thước
-• Hình dạng
-• Vị trí trong hình
-• Số lượng (nếu có nhiều object tương tự)
-• Chất liệu hoặc kết cấu
-• Mối tương quan với các object khác
-• Chức năng hoặc mục đích sử dụng (nếu có thể nhận biết)
-• Tình trạng (mới, cũ, hư hỏng, v.v.)
-• Chi tiết đặc biệt hoặc nổi bật
-• Góc nhìn hoặc hướng của object
-• Ánh sáng và bóng đổ
-• Biểu cảm hoặc tư thế (nếu là sinh vật)
-• Phong cách hoặc thời đại (nếu áp dụng)
-• Bối cảnh xung quanh object
-}
-'''
 

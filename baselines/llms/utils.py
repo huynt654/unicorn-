@@ -4,14 +4,14 @@ import ollama
 
 # Note: You must run command (ollama pull gemma:7b) in terminal before calling model to pull model
 
-def response(llm_name, prompt):
+def respond(llm_name, prompt):
 
     response = ollama.generate(model=llm_name, 
                                      prompt=prompt)
 
     return response['response']
 
-def chat(llm_name, message):
+def chatting(llm_name, message):
 
     '''
     llm_name: str
@@ -34,7 +34,7 @@ def lister():
 
     return supported_model_list
 
-def show(llm_name):
+def shower(llm_name):
     temp = ollama.show(llm_name)
     return temp
 
@@ -57,7 +57,7 @@ def streaming(llm_name, message):
     for chunk in stream:
         print(chunk['message']['content'], end='', flush=True)
 
-def embedding(llm_name, prompt):
+def embed(llm_name, prompt):
 
     '''
     llm_name: str
@@ -72,4 +72,5 @@ def embedding(llm_name, prompt):
     embedding = ollama.embeddings(model=llm_name, prompt=prompt)
 
     return embedding['embedding']
+
 

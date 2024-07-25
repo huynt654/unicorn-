@@ -1,11 +1,11 @@
-from utils import load_model, write_to_json
+from utils import load_model, write_to_json, design_prompt
 import argparse
 import os
 import torch
 import numpy as np
 import random
 
-from evaluations.evaluation import test_ood_tasks, evaluate_sketchyvqa
+from evaluations.evaluation2 import test_ood_tasks, evaluate_sketchyvqa
 
 # Answer type of sketch dataset: Yes/No Question
 # Answer type of vqa dataset: Yes/No Question and Digits
@@ -23,16 +23,6 @@ def parse_args():
                         "InstructBLIP2-13B",
                         "InternLM",
                         "QwenChat"])
-    
-    parser.add_argument("--llm_name", type=str, 
-                    default='gemma:7b',
-                    choices=[
-                        'gemma:7b',
-                        'gemma:2b',
-                        'llama3:8b',
-                        'qwen2:7b'
-                    ])
-    
     parser.add_argument("--dataset", type=str, 
                         default='ood-vqa',
                         choices=[
@@ -40,10 +30,10 @@ def parse_args():
                             'ood-vqa-challenge',
                             'sketch',
                             'sketch-challenge',
+                            'ok-vqa',
                             'a-okvqa',
                             'gqa-testdev'
                         ])
-    
     parser.add_argument("--save_jsondir", type=str, default='./results/')
         # trial arguments
     parser.add_argument(
@@ -61,7 +51,8 @@ def parse_args():
     )
 
     parser.add_argument("--device", type=str, default='cuda')
-    parser.add_argument("--batch_size", type=int, default=1, help='Current, only support for batch size 1')
+    parser.add_argument("--batch_size", type=int, default=1)
+    parser.add_argument("--custom_prompt", type=bool, default=False) 
 
     args = parser.parse_args()
     return args
@@ -101,7 +92,6 @@ def main(args):
         for seed in args.trial_seeds:
             acc, yes_no_acc, digits_acc, all_digits_acc, all_category_results = test_ood_tasks(
                 model, 
-                args.llm_name,
                 args.batch_size,
 
                 img_base_dir,
@@ -129,13 +119,10 @@ def main(args):
             "AllDigits": all_digits_acc_list[0],
             "AllCategories": all_category_results,
         }    
-
-        
     elif eval_task == 'sketchy':
         
         scores = evaluate_sketchyvqa(
             model,
-            args.llm_name,
             batch_size=args.batch_size,
             
             
@@ -169,4 +156,3 @@ def main(args):
 if __name__ == "__main__":
     args = parse_args()
     main(args)
-
