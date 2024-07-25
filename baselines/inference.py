@@ -39,7 +39,13 @@ def parse_args():
                         ])
     
     parser.add_argument("--img_path", type=str, default='/mnt/AI_Data/UNICORN/test/demo3.png')
-    parser.add_argument("--question", type=str, default="What does the man who sits have trouble doing? \n Multiple Choice Answers: \n (a) Riding (b) Breathing (c) Walking (d) Magic")
+    parser.add_argument("--question", type=str, default="What does the man who sits have trouble doing?")
+    
+    parser.add_argument('--multiple_choice', type=bool, default=False)
+    '''
+    Multiple Choice Answers:
+    (a) Riding (b) Breathing (c) Walking (d) Magic.
+    '''
 
     args = parser.parse_args()
     return args
@@ -51,29 +57,24 @@ def main(args):
 
     # Step 0: Generate description llm
     IP_FS_prompt = design_prompt('IP-FS', args.question)
-    description_instruction = respond(args.llm_name,  IP_FS_prompt)
-    print(description_instruction)
+    description = respond(args.llm_name,  IP_FS_prompt)
 
-    # description = "A description of the man's physical condition or any visible signs of difficulty performing the listed activities."
-    # # Step 1: Generate Context 
-    # CG_prompt = design_prompt('CG', description=description) #_instruction)
-    # context = vlm_model.generate(
-    #     instruction=[CG_prompt],
-    #     images=[args.img_path],
-    # )
-    # print(context)
+    # Step 1: Generate Context 
+    CG_prompt = design_prompt('CG', description=description) #_instruction)
+    context = vlm_model.generate(
+        instruction=[CG_prompt],
+        images=[args.img_path],
+    )
 
+    # Step 2: Generate Answer
+    QA_prompt = design_prompt('QA', context=context, question=args.question)
+    pred = vlm_model.generate(
+        instruction=[QA_prompt],
+        images=[args.img_path],
+    )
 
-
-    # context = 'The man is described as elderly and using a wheelchair, which suggests that he may have some physical limitations or difficulty walking. However, the image does not provide enough information to determine the severity of his physical condition or any visible signs of difficulty performing the listed activities.'
-    # # Step 2: Generate Answer
-    # QA_prompt = design_prompt('QA', context=context, question=args.question)
-    # pred = vlm_model.generate(
-    #     instruction=[QA_prompt],
-    #     images=[args.img_path],
-    # )
-    # print(f'Instruction:\t{QA_prompt}')
-    # print(f'Answer:\t{pred}')
+    print(f'Instruction:\t{QA_prompt}')
+    print(f'Answer:\t{pred}')
 
 
 if __name__ == "__main__":

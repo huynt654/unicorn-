@@ -25,3 +25,4 @@ from utils import load_json_file
 
 json = load_json_file('/mnt/AI_Data/UNICORN/test/unicorn-/data/label/oodcv-vqa/oodcv-vqa.json')
 print(len(json))
+
