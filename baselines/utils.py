@@ -1,6 +1,7 @@
 import json
 from llms.utils import respond 
 import os
+from tqdm import tqdm 
 
 class DescriptionNotFoundError(Exception):
     'Exception was initialized when not dound corresponding description'
@@ -135,7 +136,7 @@ Answer:'''
     elif prompt_type == 'QA':
         
         prompt = f'''Context: {context}.
-Question: {question}.
+Question: {question}
 So the answer is: '''
     
     elif prompt_type == 'QA-FS':
@@ -161,7 +162,9 @@ def pipeline(vlm,
              img_path, # list 
              question, # str 
              task_name, # str
-             challenge, # int 
+             challenge, # int
+             inference, # bool
+             desc=None, # str 
              step0=False
     ):
 
@@ -172,6 +175,8 @@ def pipeline(vlm,
     - llm_name: str
     - img_path: list[str]
     - question: str
+    - inference: bool --> Whether print prediction or not 
+    - desc: str 
     - step0: bool --> Whether to use step0 or not 
     Output:
     - pred: str (answer for VQA)
@@ -182,20 +187,23 @@ def pipeline(vlm,
         # Step 0: Generate description llm
         IP_FS_prompt = design_prompt('IP-FS', question)
         description = respond(llm_name,  IP_FS_prompt)
+    elif desc is not None:
+        description = desc
     else:
         jsonfile = load_step0(task_name, challenge)
         try:
-            description = get_description(jsonfile, question, img_path)
+            description = get_description(jsonfile, question, img_path[0])
         except DescriptionNotFoundError as e:
             print(f"Error: {e}")
             exit(1) 
        
     # Step 1: Generate Context 
-    CG_prompt = design_prompt('CG', description=description) #_instruction)
+    CG_prompt = design_prompt('CG', description=description) 
     context = vlm.generate(
         instruction=[CG_prompt],
         images=img_path,
     )
+    
 
     # Step 2: Generate Answer
     QA_prompt = design_prompt('QA', context=context, question=question)
@@ -203,6 +211,13 @@ def pipeline(vlm,
         instruction=[QA_prompt],
         images=img_path,
     )
+    if inference:
+        print(f"""Description: {description}
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Context: {context}
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Prediction: {pred}"""
+    ) 
 
     return pred
 
@@ -252,11 +267,11 @@ def run_step0(img_base_dir, question_jsonfile, llm_name, jsonfilepath):
 
     # Run step0
     data = load_json_file(question_jsonfile)
-    for item in data:
+    for index, item in tqdm(enumerate(data), total=len(data), desc='Running step0'): 
         temp = {}
         question = item['question']
         image_path =  get_img_path(img_base_dir, item['image'])
-        # Step 0: Generate description llm
+        # Step 0: Generate description by using llm
         IP_FS_prompt = design_prompt('IP-FS', question)
         description = respond(llm_name,  IP_FS_prompt)
 
@@ -264,6 +279,8 @@ def run_step0(img_base_dir, question_jsonfile, llm_name, jsonfilepath):
         temp['image_path'] = image_path
         temp['description'] = description
         descriptions.append(temp)
+        # if index == 0:
+        #     print(temp)
     
     
     # Save step0

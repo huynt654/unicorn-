@@ -68,6 +68,7 @@ def test_ood_tasks(
 
     predictions = defaultdict()
     failed_case = 0
+    inference = False
 
     for batch in more_itertools.chunked(tqdm(eval_dataset), batch_size):
         
@@ -88,7 +89,8 @@ def test_ood_tasks(
                           batch_images, 
                           batch_text[0],
                           task_name, 
-                          challenge
+                          challenge,
+                          inference
             )
         
         # outputs = eval_model.generate(
@@ -144,6 +146,7 @@ def evaluate_sketchyvqa(
         question_path=questions_json_path,
     )
 
+    inference = False
     predictions = []
 
     for batch in more_itertools.chunked(
@@ -164,7 +167,8 @@ def evaluate_sketchyvqa(
                             batch_images[0], 
                             batch_text[0],
                             task_name,
-                            challenge
+                            challenge, 
+                            inference
             )
         # outputs = eval_model.generate(
         #     images=batch_images[0],
