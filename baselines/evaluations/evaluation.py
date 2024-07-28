@@ -114,7 +114,7 @@ def test_ood_tasks(
             if challenge:
                 save_path = f"../test_results/generated/{task_name}-counterfact_{model_name}_output.json"    
             else: 
-                save_path = f"../test_results/generated/{task_name}_{model_name}_output.json"
+                save_path = f"../test_results/generated/{task_name}_{model_name}_1st_output.json"
             with open(save_path, "w") as f:
                     json.dump(predictions, f, indent=4)
     

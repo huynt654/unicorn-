@@ -104,28 +104,25 @@ def design_prompt(prompt_type, question=None, description=None, context=None):
     if prompt_type == 'IP':
         
         prompt = f'''Question: {question}
-Task demonstration: What information needs to be described to help answer the question above? (describe in one sentence)
+Task demonstration: What information needs to be described to help answer the question above? (describe in one sentence).
 Answer:'''
+        # (write in digit)
+        # (write in yes/no)
   
     elif prompt_type == 'IP-FS':
         
         prompt = f'''Example 1: 
-Question: 'How many people will dine at this table?'
-Task demonstration: What information needs to be described to help answer the question above? (describe in one sentence)
-Answer: A description of the table's size, shape, and the number of place settings or chairs arranged around it.
+Question: "Is there a bus in the image?" 
+Task demonstration: What information needs to be described to help answer the question above? (describe in one sentence).
+Answer: "Let's describe object that resembles or is bus."
 
-Example 2:
-Question: 'What could block the washer's door?'
-Task demonstration: What information needs to be described to help answer the question above? (describe in one sentence)
-Answer: A description of the washer's surroundings, any visible obstructions near the door, and the current state of the washer's door (open or closed).
-
-Example 3:
-Question: "What is the hairstyle of the blond called?"
-Task demonstration: What information needs to be described to help answer the question above? (describe in one sentence)
-Answer: A description of the specific features or characteristics that distinguish the blond's hairstyle.
+Example 2: 
+Question: "How many cars are there in the image?"
+Task demonstration: What information needs to be described to help answer the question above? (describe in one sentence).
+Answer: "Let's describe the exact number of cars in the image."
 
 Question: {question}
-Task demonstration: What information needs to be described to help answer the question above? (describe in one sentence)
+Task demonstration: What information needs to be described to help answer the question above? (describe in one sentence).
 Answer:'''
     
     elif prompt_type == 'CG':
@@ -152,8 +149,10 @@ Let's choose 1 of the options above. So the answer is: '''
     return prompt 
 
 def get_description(data, target_question, target_image_path):
+    
     for item in data:
         if item['question'] == target_question and item['image_path'] == target_image_path:
+            print(item['question'], item['image_path'], item['description'])
             return item['description']
     raise DescriptionNotFoundError(f"KNot found description for question '{target_question}' and image '{target_image_path}'")
 

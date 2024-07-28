@@ -1197,7 +1197,7 @@
     },
     {
         "image": "phase-2/images/145.jpg",
-        "question": "How many diningtables are there in the image?",
+        "question": "How many are there in the image?",
         "options": [
             "A: 1",
             "B: 0"
@@ -51596,6 +51596,7 @@
         "phase": "phase-2",
         "situation": "weather"
     },
+    
     {
         "image": "phase-1/images/bicycle_+_snow_OR_snowy_google_0152.jpg",
         "question": "How many unicorns are there in the image?",

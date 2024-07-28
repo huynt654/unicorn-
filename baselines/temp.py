@@ -10,6 +10,7 @@
 
         --> Prediction = VLMs(Prompt)
 '''
+# 10.242.212.122
 
 from utils import design_prompt
 from llms.utils import respond 
@@ -29,13 +30,13 @@ print(len(json))
 # run step0
 # pipeline 
 
-# run_step0(img_base_dir='../data/oodcv_images', question_jsonfile='../data/label/oodcv-vqa/oodcv-vqa.json', llm_name='gemma:7b', jsonfilepath='./step0/vqa.json')
+run_step0(img_base_dir='../data/oodcv_images', question_jsonfile='../data/label/oodcv-vqa/oodcv-vqa.json', llm_name='gemma:7b', jsonfilepath='./step0/vqa.json')
 # jsonfile = load_step0('vqa', 0)
 # desc = get_description(jsonfile, "Is there a car in the image?", "../data/oodcv_images/phase-1/images/car_+_pokemon_google_0013.jpg")
 # print(desc)
 
-vlm = load_model('QwenChat')
-pred = pipeline(vlm, 'gemma:7b', ["../data/oodcv_images/phase-1/images/car_+_snow_OR_snowy_google_0019.jpg"], "How many cars are there in the image?", 'vqa', 0, True, desc="Let's describe the exact number of cars in the image (write in digit).")
+# vlm = load_model('QwenChat')
+# pred = pipeline(vlm, 'gemma:7b', ["../data/oodcv_images/phase-2/images/93.jpg"],  "Is there a motorbike in the image?", 'vqa', 0, True, desc="Let's describe objects that resemble or are motorbikes (write in yes/no).")
 
 
 '''
@@ -46,8 +47,8 @@ pred = pipeline(vlm, 'gemma:7b', ["../data/oodcv_images/phase-1/images/car_+_sno
 '''
 
 # ood-vqa: how many (number), is there (resemble or is) và 1 câu add/remove 
-
 # challenge-vqa: (no change(remove/add zero), add/remove)
+
 # How many unicorns would there be in the image after no unicorn was removed in the image? (add 0) (digit)
 # Would there be a bus in the image after the bus disappeared from this picture? (remove 1) (yes no)
 # digit (no change, change), yes/no (would there)
@@ -70,10 +71,6 @@ Is there a sketchy {} in the picture?
 '''
 
 '''
-Let's describe objects that resemble or are buses (describe in one setence)
-
-Let's describe the number of bicycles in the picture (describe in one setence)
-
 "Is there a bus in the image?"  Hãy mô tả về những object giống hoặc là bus
 "How many bicycles are there in the image?" Hãy mô tả số lượng bicycle có trong hình
 "How many unicorns would there be in the image after no unicorn was removed in the image?"
@@ -81,6 +78,7 @@ Let's describe the number of bicycles in the picture (describe in one setence)
 '''
 
 '''
+- pipeline image
 - table1: accuracy over 6 datasets
 - ablation study:
 + test --> describe in one, 2, 3,... sentence
@@ -89,44 +87,3 @@ Let's describe the number of bicycles in the picture (describe in one setence)
 - With and without: description + context 
 '''
 
-
-
-
-'''
-Your suggestion for a task demonstration is a good starting point. To make it more specific and aligned with the examples provided, we can refine it slightly. Here's an optimal task demonstration in the form of a question:
-
-Task demonstration: What specific aspect of the image should we focus on describing to directly address the question above?
-
-This task demonstration works well because:
-
-1. It prompts the AI to consider the specific elements of the image that are relevant to the question.
-2. It encourages a focused response that aligns with the question's intent.
-3. It can be applied to a wide range of image-related questions, similar to the examples provided.
-4. It naturally leads to instructions that guide the description process, as seen in the examples.
-
-This task demonstration can effectively generate instructions like those in the examples:
-
-- For "Is there a bus in the image?", it would lead to an instruction like "Let's describe objects that resemble or are buses."
-- For "How many bicycles are there in the image?", it would result in an instruction like "Let's describe the number of bicycles in the picture."
-
-This format allows for flexibility while maintaining a clear focus on the specific information needed to answer the original question.
-'''
-
-# Example 1:
-# Question: "Is there a bus in the image?" 
-# Task demonstration: What specific aspect of the image should we focus on describing to directly address the question above? (describe in one sentence)
-# Answer: 'Let's describe objects that resemble or are buses. (if there are buses)'
-
-# Example 2: 
-# Question: "How many cars are there in the image?"
-# Task demonstration: What specific aspect of the image should we focus on describing to directly address the question above? (describe in one sentence)
-# Answer: 'Let's describe the number of objects that resemble or are cars in the image (if there are buses).'
-
-# Example 3:
-# Question: "How many bicycles are there in the image?"
-# Task demonstration: What specific aspect of the image should we focus on describing to directly address the question above? (describe in one sentence)
-# Answer: 'Let's observe carefully under many conditions (view, weather,...) and write to describe the number of bycicles in the image (if there are bycicles).'
-
-# Question: "How many chairs are there in the image?"
-# Task demonstration: What specific aspect of the image should we focus on describing to directly address the question above? (describe in one sentence)
-# Answer:   
